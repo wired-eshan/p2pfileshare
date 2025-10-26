@@ -9,6 +9,7 @@ import p2pfileshare.service.FileSharer;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,10 +96,44 @@ public class FileController {
                 Multiparser parser = new Multiparser(requestData, boundary);
                 Multiparser.ParseResult result = parser.parse();
 
-                //#TODO: serve file on available port
+                if (result == null) {
+                    String response = "Bad Request: Could not parse file content";
+                    exchange.sendResponseHeaders(400, response.getBytes().length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(response.getBytes());
+                    }
+                    return;
+                }
 
+                String filename = result.filename;
+                if (filename == null || filename.trim().isEmpty()) {
+                    filename = "new-file";
+                }
+
+                String uniqueFilename = UUID.randomUUID().toString() + "_" + new File(filename).getName();
+                String filePath = uploadDir + File.separator + uniqueFilename;
+
+                try (FileOutputStream fos = new FileOutputStream(filePath)) {
+                    fos.write(result.fileContent);
+                }
+
+                int port = fileSharer.assignAvailablePort(filePath);
+
+                new Thread(() -> fileSharer.startFileServer(port)).start();
+
+                String jsonResponse = "{\"port\": " + port + "}";
+                headers.add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, jsonResponse.getBytes().length);
+                try (OutputStream oss = exchange.getResponseBody()) {
+                    oss.write(jsonResponse.getBytes());
+                }
             } catch (Exception ex) {
-
+                System.err.println("Error processing file upload: " + ex.getMessage());
+                String response = "Server error: " + ex.getMessage();
+                exchange.sendResponseHeaders(500, response.getBytes().length);
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
             }
 
         }
