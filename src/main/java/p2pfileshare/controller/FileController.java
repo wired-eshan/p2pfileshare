@@ -4,12 +4,14 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.apache.commons.io.IOUtils;
 import p2pfileshare.service.FileSharer;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 
 public class FileController {
     private final FileSharer fileSharer;
@@ -58,7 +60,134 @@ public class FileController {
     private class UploadHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            Headers headers = exchange.getResponseHeaders();
+            headers.add("Access-Control-Allow-Origin", "*");
 
+            if(!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                String response = "METHOD NOT ALLOWED";
+                exchange.sendResponseHeaders(405, response.getBytes().length);
+                try(OutputStream oss = exchange.getResponseBody()) {
+                    oss.write(response.getBytes());
+                }
+                return;
+            }
+
+            Headers requestHeaders = exchange.getRequestHeaders();
+            String contentType = requestHeaders.getFirst("Content-Type");
+
+            if(contentType == null || !contentType.startsWith("multipart/form-data")) {
+                String response = "Bad Request: Content-Type must be multipart/form-data";
+                exchange.sendResponseHeaders(400, response.getBytes().length);
+                try (OutputStream oss = exchange.getResponseBody()) {
+                    oss.write(response.getBytes());
+                }
+                return;
+            }
+
+            try{
+                String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+                IOUtils.copy(exchange.getRequestBody(), byteArrayOutputStream);
+
+                byte[] requestData = byteArrayOutputStream.toByteArray();
+
+                Multiparser parser = new Multiparser(requestData, boundary);
+                Multiparser.ParseResult result = parser.parse();
+
+                //#TODO: serve file on available port
+
+            } catch (Exception ex) {
+
+            }
+
+        }
+    }
+
+    private static class Multiparser {
+        private final byte[] data;
+        private final String boundary;
+
+        public Multiparser(byte[] data, String boundary) {
+            this.data = data;
+            this.boundary = boundary;
+        }
+
+        public ParseResult parse() {
+            try {
+                String dataString = new String(data);
+
+                String filenameMarker = "filename\"";
+                int filenameStart = dataString.indexOf(filenameMarker);
+                if(filenameStart == -1) {
+                    return null;
+                }
+
+                filenameStart += filenameMarker.length();
+                int filenameEnd = dataString.indexOf("\"", filenameStart);
+                String filename = dataString.substring(filenameStart, filenameEnd);
+
+                String contentTypeMarker = "Content-Type: ";
+                int contentTypeStart = dataString.indexOf(contentTypeMarker, filenameEnd);
+                String contentType = "application/octet-stream";
+                if(contentTypeStart != -1) {
+                    contentTypeStart += contentTypeMarker.length();
+                    int contentTypeEnd = dataString.indexOf("\r\n", contentTypeStart);
+                    contentType = dataString.substring(contentTypeStart, contentTypeEnd);
+                }
+
+                String headerEndMarker = "\r\n\r\n";
+                int headerEnd = dataString.indexOf(headerEndMarker);
+                if(headerEnd == -1) {
+                    return null;
+                }
+                int contentStart = headerEnd + headerEndMarker.length();
+
+                byte[] boundaryBytes = ("\r\n--" + boundary + "--").getBytes();
+                int contentEnd = findContentEnd(data, boundaryBytes, contentStart);
+
+                if(contentEnd == -1) {
+                    boundaryBytes = ("\r\n--" + boundary).getBytes();
+                    contentEnd = findContentEnd(data, boundaryBytes, contentStart);
+                }
+
+                if(contentEnd == -1 || contentEnd <= contentStart) {
+                    return null;
+                }
+
+                byte[] fileContent = new byte[contentEnd - contentStart];
+                System.arraycopy(data, contentStart, fileContent, 0, fileContent.length);
+
+                return new ParseResult(filename, contentType, fileContent);
+            } catch (Exception ex) {
+                System.err.println("Error parsing multipart form data: " + ex.getMessage());
+                return null;
+            }
+        }
+
+        private static int findContentEnd(byte[] data, byte[] boundary, int start) {
+            outer:
+            for(int i = start; i<= data.length - boundary.length; i++) {
+                for(int j = 0; j < boundary.length; j++) {
+                    if(data[i+j] != boundary[j]) {
+                        continue outer;
+                    }
+                }
+                return i;
+            }
+            return -1;
+        }
+
+        public static class ParseResult {
+            public final String filename;
+            public final String contentType;
+            public final byte[] fileContent;
+
+            public ParseResult(String filename, String contentType, byte[] fileContent) {
+                this.filename = filename;
+                this.contentType = contentType;
+                this.fileContent = fileContent;
+            }
         }
     }
 
