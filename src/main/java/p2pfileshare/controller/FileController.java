@@ -38,6 +38,17 @@ public class FileController {
         httpServer.setExecutor(executorService);
     }
 
+    public void start() {
+        httpServer.start();
+        System.out.println("HTTP server started on port: " + httpServer.getAddress().getPort());
+    }
+
+    public void stop() {
+        httpServer.stop(0);
+        executorService.shutdown();
+        System.out.println("HTTP server stopped");
+    }
+
     private class CORSHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -229,7 +240,7 @@ public class FileController {
 
     private class DownloadHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) {
+        public void handle(HttpExchange exchange) throws IOException {
             Headers headers = exchange.getResponseHeaders();
             headers.add("Access-Control-Allow-Origin", "*");
 
