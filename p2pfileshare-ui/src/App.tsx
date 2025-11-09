@@ -15,8 +15,10 @@ function App() {
     <>
       <div className="h-screen w-screen justify-items-center p-8">
         <div className="w-10/12 lg:w-6/12 text-center mx-auto p-0">
-          <p className="text-3xl font-bold">P2P File Sharing</p>
-          <div className="flex justify-evenly m-8">
+          <p className="text-3xl font-bold mb-8">P2P File Sharing</p>
+          {activeTab == "upload" && <FileUpload />}
+          {activeTab == "download" && <FileDownload />}
+          <div className="flex justify-evenly m-4">
             <button
               name="upload"
               style={
@@ -46,8 +48,6 @@ function App() {
               Receive
             </button>
           </div>
-          {activeTab == "upload" && <FileUpload />}
-          {activeTab == "download" && <FileDownload />}
         </div>
       </div>
     </>
