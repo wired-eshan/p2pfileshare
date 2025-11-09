@@ -164,7 +164,7 @@ public class FileController {
             try {
                 String dataString = new String(data);
 
-                String filenameMarker = "filename\"";
+                String filenameMarker = "filename=\"";
                 int filenameStart = dataString.indexOf(filenameMarker);
                 if(filenameStart == -1) {
                     return null;

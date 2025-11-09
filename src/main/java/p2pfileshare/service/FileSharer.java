@@ -24,6 +24,7 @@ public class FileSharer {
             port = UploadUtils.getRandomDynamicPort();
             if(!availableFiles.containsKey(port)) {
                 availableFiles.put(port, filePath);
+                return port;
             }
         }
     }

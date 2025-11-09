@@ -13,10 +13,10 @@ function App() {
 
   return (
     <>
-      <div className="h-screen w-screen justify-items-center p-10">
-        <div className="w-9/12 text-center">
+      <div className="h-screen w-screen justify-items-center p-8">
+        <div className="w-10/12 lg:w-6/12 text-center mx-auto p-0">
           <p className="text-3xl font-bold">P2P File Sharing</p>
-          <div className="flex justify-evenly m-4">
+          <div className="flex justify-evenly m-8">
             <button
               name="upload"
               style={
@@ -29,7 +29,7 @@ function App() {
               }`}
               onClick={handleTabChange}
             >
-              Upload File
+              Upload
             </button>
             <button
               name="download"
@@ -43,7 +43,7 @@ function App() {
               }`}
               onClick={handleTabChange}
             >
-              Receive File
+              Receive
             </button>
           </div>
           {activeTab == "upload" && <FileUpload />}
