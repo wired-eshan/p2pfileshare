@@ -287,6 +287,7 @@ public class FileController {
 
                     headers.add("Content-Disposition", "attachment; filename=\"" + filename + "\"");
                     headers.add("Content-Type", "application/octet-stream");
+                    headers.add("Access-Control-Expose-Headers", "Content-Disposition");
 
                     exchange.sendResponseHeaders(200, tempFile.length());
                     try (OutputStream oss = exchange.getResponseBody();
