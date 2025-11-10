@@ -3,16 +3,20 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { Trash, Upload, File as FileIcon } from "lucide-react";
 
+interface fileUploadProps {
+    handleGetDownloadCode: (port : number) => void
+}
+
 interface uploadFileResponse  {
     port : number
 }
 
-const FileUpload: React.FC = () => {
+const FileUpload: React.FC<fileUploadProps> = ({ handleGetDownloadCode }) => {
   const [uploadedFile, setUploadedFile] = useState<null | File>();
-  const [filePort, setFilePort] = useState<null | number>();
 
   const [isRemoving, setIsRemoving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<null | string>();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -48,10 +52,12 @@ const FileUpload: React.FC = () => {
           }
         );
         const res : uploadFileResponse = response.data;
-        setFilePort(res.port);
         console.log(response.data);
+        setUploadedFile(null);
+        handleGetDownloadCode(res.port);
       } catch (error) {
         console.log("Error uploading file: ", error);
+        setError(error instanceof Error ? error.message : "An error occurred while uploading the file");
       } finally {
         setIsUploading(false);
       }
@@ -156,6 +162,7 @@ const FileUpload: React.FC = () => {
             </div>
           </>
         )}
+        {error ?? error}
       </div>
     </>
   );
