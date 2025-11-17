@@ -1,14 +1,42 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import axios from "axios";
 
 const FileDownload : React.FC = () => {
     const [port, setPort] = useState<string>('');
+    const [inputCode, setInputCode] = useState<string[]>(["", "", "", "", ""]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPort(e.target.value);
+    const inputsRef = useRef<HTMLInputElement[] | null[]>([]);
+
+    const handleCodeInput = (e: React.ChangeEvent<HTMLInputElement>, index : number) => {
+        const value = e.currentTarget.value.replace(/[^0-9]/g, "");
+        
+        if(!value) return;
+
+        const code = [...inputCode];
+        code[index] = value;
+        setInputCode(code);
+
+        if(index < 4 && value) {
+            inputsRef.current[index+1]?.focus();
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index : number) => {
+        if(e.key == "Backspace") {
+            if(inputCode[index]) {
+                // Clear current input if it has a value
+                const code = [...inputCode];
+                code[index] = "";
+                setInputCode(code);
+            } else if(index > 0) {
+                // Go to previous input if current is empty
+                inputsRef.current[index-1]?.focus();
+            }
+        }
     }
 
     const handleSubmit = async () => {
+        //#TODO: set port using inputCode state
         const response = await axios.get(`http://localhost:8080/download/${port}`, {
             responseType: "blob"
         });
@@ -49,10 +77,22 @@ const FileDownload : React.FC = () => {
 
     return (
         <>
-            <div className="h-[40vh] bg-gray-700 w-12/12 rounded-xl p-4">
-                Download from here
-                <input value={port} onChange={handleChange} placeholder="Enter port" />
-                <button onClick={handleSubmit}>Download</button>
+            <div className="flex-col h-[40vh] bg-gray-700 w-12/12 rounded-xl p-4 content-center">
+                    <div className="flex justify-center">
+                        {inputCode.map((val, index) => {
+                            return(<input
+                                type="number"
+                                value={inputCode[index]}
+                                className="border border-gray-400 min-w-0 h-[3rem] m-2 text-center md:h-[2.5rem] md:w-[3rem] rounded"
+                                ref={(el) => {inputsRef.current[index] = el}}
+                                onChange={(e) => handleCodeInput(e, index)}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                            />)
+                        })}
+                    </div>
+                <div className="my-4">
+                    <button onClick={handleSubmit}>Download</button>
+                </div>
             </div>
         </>
     )
