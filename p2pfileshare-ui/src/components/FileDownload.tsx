@@ -35,6 +35,15 @@ const FileDownload : React.FC = () => {
         }
     }
 
+    const handleCodeInputClick = () => {
+        let starting = 0;
+        for(starting = 0; starting < 5; starting++) {
+            if(!inputCode[starting])
+                break;
+        }
+        inputsRef.current[starting]?.focus();
+    }
+
     const handleSubmit = async () => {
         //#TODO: set port using inputCode state
         const response = await axios.get(`http://localhost:8080/download/${port}`, {
@@ -87,6 +96,8 @@ const FileDownload : React.FC = () => {
                                 ref={(el) => {inputsRef.current[index] = el}}
                                 onChange={(e) => handleCodeInput(e, index)}
                                 onKeyDown={(e) => handleKeyDown(e, index)}
+                                onClick={handleCodeInputClick}
+                                
                             />)
                         })}
                     </div>
@@ -94,6 +105,18 @@ const FileDownload : React.FC = () => {
                     <button onClick={handleSubmit}>Download</button>
                 </div>
             </div>
+            <style>
+                {
+                    `input[type="number"]::-webkit-outer-spin-button,
+                    input[type="number"]::-webkit-inner-spin-button {
+                        -webkit-appearance: none;
+                        margin: 0;
+                    }
+                    input[type="number"] {
+                        -moz-appearance: textfield;
+                    }`
+                }
+            </style>
         </>
     )
 };
