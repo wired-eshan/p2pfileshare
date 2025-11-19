@@ -43,6 +43,18 @@ const FileDownload : React.FC = () => {
         }
         inputsRef.current[starting]?.focus();
     }
+ 
+    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const pastedCode = e.clipboardData.getData("text");
+        const sanitizedCode = pastedCode.replace(/[^0-9]/g, "");
+
+        const code = ["", "", "", "", ""];
+        for(let i=0; i < sanitizedCode.length; i++) {
+            code[i] = sanitizedCode[i];
+        }
+        setInputCode(code);
+    }
 
     const handleSubmit = async () => {
         //#TODO: set port using inputCode state
@@ -86,7 +98,7 @@ const FileDownload : React.FC = () => {
 
     return (
         <>
-            <div className="flex-col h-[40vh] bg-gray-700 w-12/12 rounded-xl p-4 content-center">
+            <div className="flex-col h-[40vh] bg-gray-700 w-12/12 rounded-xl p-4 content-center bg-gradient-to-tl from-black from-gray-900 hover:bg-gradient-to-br hover:from-gray-900 hover:to-black transition-all duration-500 group">
                     <div className="flex justify-center">
                         {inputCode.map((val, index) => {
                             return(<input
@@ -97,7 +109,7 @@ const FileDownload : React.FC = () => {
                                 onChange={(e) => handleCodeInput(e, index)}
                                 onKeyDown={(e) => handleKeyDown(e, index)}
                                 onClick={handleCodeInputClick}
-                                
+                                onPaste={handlePaste}
                             />)
                         })}
                     </div>
