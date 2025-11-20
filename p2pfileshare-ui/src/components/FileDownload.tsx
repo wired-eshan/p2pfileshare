@@ -2,8 +2,8 @@ import React, { useRef, useState } from "react";
 import axios from "axios";
 
 const FileDownload : React.FC = () => {
-    const [port, setPort] = useState<string>('');
     const [inputCode, setInputCode] = useState<string[]>(["", "", "", "", ""]);
+    const [error, setError] = useState<string | null>(null);
 
     const inputsRef = useRef<HTMLInputElement[] | null[]>([]);
 
@@ -56,8 +56,24 @@ const FileDownload : React.FC = () => {
         setInputCode(code);
     }
 
+    const getDownloadPort = () => {
+        let downloadPort = "";
+        inputCode.map((digit : string) => {
+            downloadPort += digit;
+        });
+        return downloadPort;
+    }
+
     const handleSubmit = async () => {
-        //#TODO: set port using inputCode state
+        setError(null);
+        
+        const port = getDownloadPort();
+
+        if(port.length < 5) {
+            setError("Invalid code. Must be 5 digit download code.");
+            return;
+        }
+
         const response = await axios.get(`http://localhost:8080/download/${port}`, {
             responseType: "blob"
         });
@@ -113,6 +129,7 @@ const FileDownload : React.FC = () => {
                             />)
                         })}
                     </div>
+                    {error && error}
                 <div className="my-4">
                     <button onClick={handleSubmit}>Download</button>
                 </div>
