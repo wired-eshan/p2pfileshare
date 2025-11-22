@@ -43,7 +43,7 @@ const FileUpload: React.FC<fileUploadProps> = ({ handleGetDownloadCode }) => {
         formData.append("file", uploadedFile);
 
         const response = await axios.post(
-          "http://localhost:8080/upload",
+          "/api/upload",
           formData,
           {
             headers: {

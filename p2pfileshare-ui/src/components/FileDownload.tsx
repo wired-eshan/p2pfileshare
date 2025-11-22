@@ -74,7 +74,7 @@ const FileDownload : React.FC = () => {
             return;
         }
 
-        const response = await axios.get(`http://localhost:8080/download/${port}`, {
+        const response = await axios.get(`/api/download/${port}`, {
             responseType: "blob"
         });
 

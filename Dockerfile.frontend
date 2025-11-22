@@ -1,0 +1,8 @@
+FROM node:18-alpine
+WORKDIR /app
+COPY p2pfileshare-ui/package*.json ./
+RUN npm install
+COPY p2pfileshare-ui/ .
+RUN npm run build
+EXPOSE 5173
+CMD ["npm", "start"]

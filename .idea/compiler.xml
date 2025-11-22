@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="." />
+        <module name="p2pfileshare" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="." target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>
