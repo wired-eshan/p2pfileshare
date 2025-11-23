@@ -79,7 +79,7 @@ const FileUpload: React.FC<fileUploadProps> = ({ handleGetDownloadCode }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    maxSize: 1048576,
+    maxSize: 10000000,
     onDropRejected,
     onDropAccepted: () => setError(null)
   });
