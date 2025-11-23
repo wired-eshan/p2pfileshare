@@ -66,6 +66,9 @@ server {
     listen 80;
     server_name _; # Catch-all for HTTP requests
 
+    # Increase max upload size to 10MB
+    client_max_body_size 10M;
+
     # Backend API
     location /api/ {
         proxy_pass http://localhost:8080/;
