@@ -125,7 +125,7 @@ pm2 start --name p2pfileshare-backend java -- -cp "$CLASSPATH" p2pfileshare.App
 # Start frontend with PM2
 echo "Starting frontend with PM2..."
 cd p2pfileshare-ui
-pm2 start npm --name p2pfileshare-frontend -- start
+pm2 serve dist 3000 --name p2pfileshare-frontend --spa
 cd ..
 
 # Save PM2 configuration
