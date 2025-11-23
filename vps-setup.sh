@@ -120,7 +120,7 @@ fi
 echo "Starting backend with PM2..."
 # Ensure all dependencies are in the classpath
 CLASSPATH="target/p2pfileshare-1.0-SNAPSHOT.jar:$(mvn dependency:build-classpath -DincludeScope=runtime -Dmdep.outputFile=/dev/stdout -q)"
-pm2 start --name p2pfileshare-backend java -- -cp "$CLASSPATH" p2pfileshare2p.App
+pm2 start --name p2pfileshare-backend java -- -cp "$CLASSPATH" p2pfileshare.App
 
 # Start frontend with PM2
 echo "Starting frontend with PM2..."
