@@ -116,7 +116,7 @@ const FileDownload : React.FC = () => {
         <>
             <div className="flex-col h-[40vh] bg-gray-700 w-12/12 rounded-xl p-4 content-center bg-gradient-to-tl from-black from-gray-900 hover:bg-gradient-to-br hover:from-gray-900 hover:to-black transition-all duration-500 group">
                     <div className="flex justify-center">
-                        {inputCode.map((val, index) => {
+                        {inputCode.map((_, index) => {
                             return(<input
                                 type="number"
                                 value={inputCode[index]}
