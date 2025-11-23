@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
 import axios from "axios";
 import { Trash, Upload, File as FileIcon } from "lucide-react";
 
@@ -64,9 +64,24 @@ const FileUpload: React.FC<fileUploadProps> = ({ handleGetDownloadCode }) => {
     }
   }
 
+  const onDropRejected = (fileRejections : FileRejection[]) => {
+    fileRejections.map(rejection => {
+      rejection.errors.map(error => {
+        if(error.code === "file-too-large") {
+          setError("File exceeded allowed size of 10MB.");
+        } else {
+          setError(error.message);
+        }
+      })
+    })
+  }
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
+    maxSize: 1048576,
+    onDropRejected,
+    onDropAccepted: () => setError(null)
   });
 
   return (
