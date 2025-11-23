@@ -45,7 +45,7 @@ mvn clean package
 
 # Build frontend
 echo "Building frontend..."
-cd ui
+cd p2pfileshare-ui
 npm install
 npm run build
 cd ..
@@ -124,7 +124,7 @@ pm2 start --name p2pfileshare-backend java -- -cp "$CLASSPATH" p2pfileshare2p.Ap
 
 # Start frontend with PM2
 echo "Starting frontend with PM2..."
-cd ui
+cd p2pfileshare-ui
 pm2 start npm --name p2pfileshare-frontend -- start
 cd ..
 
